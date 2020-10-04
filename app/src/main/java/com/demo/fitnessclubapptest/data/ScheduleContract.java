@@ -2,7 +2,9 @@ package com.demo.fitnessclubapptest.data;
 
 import android.provider.BaseColumns;
 
-public class ScheduleContract {
+public final class ScheduleContract {
+
+    private ScheduleContract() {}
 
     public static final class ScheduleEntry implements BaseColumns {
         public static final String TABLE_NAME = "schedule";

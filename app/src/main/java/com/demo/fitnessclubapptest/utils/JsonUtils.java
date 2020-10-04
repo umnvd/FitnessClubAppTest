@@ -19,7 +19,7 @@ public class JsonUtils {
     private static final String KEY_END_TIME = "endTime";
     private static final String KEY_WEEK_DAY = "weekDay";
 
-    public List<Lesson> getLessonListFromJsonArray() {
+    public static List<Lesson> getLessonListFromJsonArray() {
         JSONArray jsonArray = NetworkUtils.getJsonArrayFromNetwork();
         List<Lesson> result = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {

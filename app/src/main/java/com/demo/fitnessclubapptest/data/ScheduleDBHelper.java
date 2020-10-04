@@ -3,6 +3,7 @@ package com.demo.fitnessclubapptest.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 
 public class ScheduleDBHelper extends SQLiteOpenHelper {
 
@@ -15,12 +16,30 @@ public class ScheduleDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(ScheduleContract.ScheduleEntry.CREATE_COMMAND);
+        new ExecCreateTask().execute(sqLiteDatabase);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        sqLiteDatabase.execSQL(ScheduleContract.ScheduleEntry.DROP_COMMAND);
-        onCreate(sqLiteDatabase);
+        new ExecDropTask().execute(sqLiteDatabase);
+    }
+
+    private static class ExecCreateTask extends AsyncTask<SQLiteDatabase, Void, Void> {
+
+        @Override
+        protected Void doInBackground(SQLiteDatabase... dbs) {
+            dbs[0].execSQL(ScheduleContract.ScheduleEntry.CREATE_COMMAND);
+            return null;
+        }
+    }
+
+    private static class ExecDropTask extends AsyncTask<SQLiteDatabase, Void, Void> {
+
+        @Override
+        protected Void doInBackground(SQLiteDatabase... dbs) {
+            dbs[0].execSQL(ScheduleContract.ScheduleEntry.DROP_COMMAND);
+            dbs[0].execSQL(ScheduleContract.ScheduleEntry.CREATE_COMMAND);
+            return null;
+        }
     }
 }
