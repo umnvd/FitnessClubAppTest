@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.widget.LinearLayout;
 
 import com.demo.fitnessclubapptest.adapters.ScheduleAdapter;
 import com.demo.fitnessclubapptest.data.Lesson;
@@ -43,14 +42,23 @@ public class MainActivity extends AppCompatActivity {
 
         helper = new ScheduleDBHelper(this);
         updateSchedule();
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateSchedule();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 
     private void updateSchedule() {
         // 1 download schedule
         List<Lesson> lessons = JsonUtils.getLessonListFromJsonArray();
         if (lessons.size() > 0) {
-            // 2 save it into db
-            new WriteTask().execute(lessons.toArray(new Lesson[lessons.size()]));
+            // 2 replace data in db
+            new DeleteAndWriteTask().execute(lessons.toArray(new Lesson[lessons.size()]));
         }
         try {
             // 3 get schedule from db
@@ -64,11 +72,12 @@ public class MainActivity extends AppCompatActivity {
         adapter.setLessons(lessons);
     }
 
-    private static class WriteTask extends AsyncTask<Lesson, Void, Void> {
+    private static class DeleteAndWriteTask extends AsyncTask<Lesson, Void, Void> {
 
         @Override
         protected Void doInBackground(Lesson... lessons) {
             SQLiteDatabase database = helper.getWritableDatabase();
+            database.execSQL("DELETE FROM " + ScheduleEntry.TABLE_NAME);
             for (Lesson lesson : lessons) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(ScheduleEntry.COLUMN_NAME, lesson.getName());
